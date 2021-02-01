@@ -13,6 +13,7 @@ import org.knowm.xchange.bitstamp.dto.marketdata.BitstampOrderBook;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampPairInfo;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampTicker;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampTransaction;
+import org.knowm.xchange.bitstamp.dto.ohlc.BitstampOHLCResponse;
 import org.knowm.xchange.bitstamp.service.BitstampMarketDataServiceRaw;
 import org.knowm.xchange.currency.CurrencyPair;
 import org.knowm.xchange.utils.jackson.CurrencyPairDeserializer;
@@ -81,4 +82,14 @@ public interface BitstampV2 {
               pair.counter.getCurrencyCode().toLowerCase());
     }
   }
+
+  @GET
+  @Path("ohlc/{currency_pair}/")
+  BitstampOHLCResponse getOhlc(
+      @PathParam("currency_pair") Pair pair,
+      @QueryParam("start") Long start,
+      @QueryParam("end") Long end,
+      @QueryParam("limit") int limit,
+      @QueryParam("step") int step)
+      throws IOException, BitstampException;
 }

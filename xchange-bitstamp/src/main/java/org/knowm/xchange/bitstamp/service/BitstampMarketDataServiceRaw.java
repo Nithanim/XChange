@@ -1,6 +1,7 @@
 package org.knowm.xchange.bitstamp.service;
 
 import java.io.IOException;
+import java.util.List;
 import javax.annotation.Nullable;
 import org.knowm.xchange.Exchange;
 import org.knowm.xchange.bitstamp.BitstampV2;
@@ -9,6 +10,7 @@ import org.knowm.xchange.bitstamp.dto.marketdata.BitstampOrderBook;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampPairInfo;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampTicker;
 import org.knowm.xchange.bitstamp.dto.marketdata.BitstampTransaction;
+import org.knowm.xchange.bitstamp.dto.ohlc.BitstampOHLC;
 import org.knowm.xchange.client.ExchangeRestProxyBuilder;
 import org.knowm.xchange.currency.CurrencyPair;
 
@@ -18,11 +20,15 @@ public class BitstampMarketDataServiceRaw extends BitstampBaseService {
   private final BitstampV2 bitstampV2;
 
   public BitstampMarketDataServiceRaw(Exchange exchange) {
-
-    super(exchange);
-    this.bitstampV2 =
+    this(
+        exchange,
         ExchangeRestProxyBuilder.forInterface(BitstampV2.class, exchange.getExchangeSpecification())
-            .build();
+            .build());
+  }
+
+  BitstampMarketDataServiceRaw(Exchange exchange, BitstampV2 bitstampV2) {
+    super(exchange);
+    this.bitstampV2 = bitstampV2;
   }
 
   public BitstampTicker getBitstampTicker(CurrencyPair pair) throws IOException {
@@ -63,6 +69,20 @@ public class BitstampMarketDataServiceRaw extends BitstampBaseService {
   public BitstampPairInfo[] getTradingPairsInfo() throws IOException {
     try {
       return bitstampV2.getTradingPairsInfo();
+    } catch (BitstampException e) {
+      throw handleError(e);
+    }
+  }
+
+  public List<BitstampOHLC> getBitstampOHLC(
+      CurrencyPair currencyPair, @Nullable Long start, @Nullable Long end, int limit, int step)
+      throws IOException {
+
+    try {
+      return bitstampV2
+          .getOhlc(new BitstampV2.Pair(currencyPair), start, end, limit, step)
+          .getData()
+          .getOhlc();
     } catch (BitstampException e) {
       throw handleError(e);
     }
